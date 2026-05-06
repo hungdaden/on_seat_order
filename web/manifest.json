@@ -1,0 +1,11 @@
+{
+  "name": "Phở Cẩm Phả",
+  "short_name": "PhoSaigon",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#1A0F00",
+  "theme_color": "#D35400",
+  "description": "Hệ thống đặt món tại bàn qua QR code",
+  "orientation": "portrait-primary",
+  "prefer_related_applications": false
+}
