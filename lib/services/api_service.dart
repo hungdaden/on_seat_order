@@ -57,6 +57,10 @@ class ApiService {
     await ApiClient.delete('/api/menu/$id');
   }
 
+  static Future<void> updateMenuItemAvailability(String id, bool isAvailable) async {
+    await ApiClient.put('/api/menu/$id', {'is_available': isAvailable});
+  }
+
   // ─── ORDERS ───────────────────────────────────────
   static Future<Map<String, dynamic>> createOrder({
     required int tableNumber,
@@ -105,6 +109,11 @@ class ApiService {
 
   static Future<List<Map<String, dynamic>>> fetchTopItems({int limit = 10}) async {
     final result = await ApiClient.get('/api/stats/top-items?limit=$limit');
+    return (result as List).cast<Map<String, dynamic>>();
+  }
+
+  static Future<List<Map<String, dynamic>>> fetchTableStatuses() async {
+    final result = await ApiClient.get('/api/stats/tables-status');
     return (result as List).cast<Map<String, dynamic>>();
   }
 

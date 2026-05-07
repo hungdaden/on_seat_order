@@ -28,10 +28,13 @@ void main() async {
   api.mount('/api/orders/', orderRouter().call);
   api.mount('/api/reviews/', reviewRouter().call);
 
-  final protectedStats = Pipeline()
-      .addMiddleware(requireAuth())
-      .addHandler(statsRouter().call);
-  api.mount('/api/stats/', protectedStats);
+  final stats = statsRouter();
+  api.mount('/api/stats/', (Request req) {
+    // Allow public access to table status for the TV display
+    if (req.url.path == 'tables-status') return stats(req);
+    // Everything else in stats requires admin login
+    return Pipeline().addMiddleware(requireAuth()).addHandler(stats)(req);
+  });
 
   // Static file handler
   Handler? staticHandler;

@@ -199,11 +199,45 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
         ),
         const SizedBox(width: 14),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(item.name, style: GoogleFonts.inter(color: AppTheme.textLight, fontWeight: FontWeight.w600, fontSize: 14)),
+          Row(
+            children: [
+              Text(item.name, style: GoogleFonts.inter(color: AppTheme.textLight, fontWeight: FontWeight.w600, fontSize: 14)),
+              if (!item.isAvailable)
+                Container(
+                  margin: const EdgeInsets.only(left: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(color: AppTheme.dangerRed.withOpacity(0.15), borderRadius: BorderRadius.circular(4)),
+                  child: Text('HẾT MÓN', style: GoogleFonts.inter(color: AppTheme.dangerRed, fontSize: 8, fontWeight: FontWeight.bold)),
+                ),
+            ],
+          ),
           Text(item.categoryName, style: GoogleFonts.inter(color: AppTheme.textMuted, fontSize: 12)),
           Text(AppTheme.formatPrice(item.price),
               style: GoogleFonts.inter(color: AppTheme.primaryOrange, fontWeight: FontWeight.w700, fontSize: 14)),
         ])),
+        // Quick toggle for availability
+        Column(
+          children: [
+            Transform.scale(
+              scale: 0.7,
+              child: Switch(
+                value: item.isAvailable,
+                activeColor: AppTheme.successGreen,
+                onChanged: (val) async {
+                  try {
+                    await ApiService.updateMenuItemAvailability(item.id, val);
+                    _load();
+                  } catch (e) {
+                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
+                  }
+                },
+              ),
+            ),
+            Text(item.isAvailable ? 'Còn món' : 'Hết món', 
+                style: GoogleFonts.inter(color: item.isAvailable ? AppTheme.successGreen : AppTheme.textMuted, fontSize: 10)),
+          ],
+        ),
+        const SizedBox(width: 8),
         IconButton(icon: const Icon(Icons.edit, color: AppTheme.textMuted, size: 20),
             onPressed: () => _showItemDialog(item: item)),
         IconButton(icon: const Icon(Icons.delete_outline, color: AppTheme.dangerRed, size: 20),

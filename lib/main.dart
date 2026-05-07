@@ -9,6 +9,7 @@ import 'screens/admin/admin_shell.dart';
 import 'screens/admin/orders_screen.dart';
 import 'screens/admin/menu_management_screen.dart';
 import 'screens/admin/stats_screen.dart';
+import 'screens/display_screen.dart';
 
 import 'package:flutter_web_plugins/url_strategy.dart';
 
@@ -73,6 +74,12 @@ final _router = GoRouter(
           builder: (context, state) => const StatsScreen(),
         ),
       ],
+    ),
+
+    // Display screen (TV)
+    GoRoute(
+      path: '/display',
+      builder: (context, state) => const DisplayScreen(),
     ),
   ],
 );

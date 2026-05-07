@@ -71,5 +71,24 @@ Router statsRouter() {
     } finally { db.dispose(); }
   });
 
+  router.get('/tables-status', (Request request) {
+    final db = openDatabase();
+    try {
+      // Adjusted to 10 tables as requested
+      const int totalTables = 10;
+      final occupiedResult = db.select("SELECT DISTINCT table_number FROM orders WHERE status NOT IN ('completed')");
+      final occupiedTables = occupiedResult.map((r) => r['table_number'] as int).toList();
+      
+      List<Map<String, dynamic>> tables = [];
+      for (int i = 1; i <= totalTables; i++) {
+        tables.add({
+          'table_number': i,
+          'is_available': !occupiedTables.contains(i),
+        });
+      }
+      return Response.ok(jsonEncode(tables), headers: {'Content-Type': 'application/json'});
+    } finally { db.dispose(); }
+  });
+
   return router;
 }

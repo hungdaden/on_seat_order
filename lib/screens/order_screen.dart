@@ -102,6 +102,18 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
 
   void _startPolling() {
     _statusTimer = Timer.periodic(const Duration(seconds: 3), (timer) async {
+      // 1. Refresh menu items for availability
+      try {
+        final newMenu = await ApiService.fetchMenu(categoryId: _selectedCategory);
+        if (mounted) {
+          setState(() {
+            _allItems = newMenu;
+            _filterByCategory(_selectedCategory);
+          });
+        }
+      } catch (_) {}
+
+      // 2. Refresh order status
       if (_myOrders.isEmpty) return;
       
       bool changed = false;
@@ -554,114 +566,157 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
   }
 
   Widget _buildMenuCard(MenuItem item) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.cardBrown,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.warmBrown.withOpacity(0.5)),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image
-          Expanded(
-            flex: 5,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                item.imageUrl.isNotEmpty
-                    ? Image.network(
-                        item.imageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
+    return Opacity(
+      opacity: item.isAvailable ? 1.0 : 0.6,
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppTheme.cardBrown,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppTheme.warmBrown.withOpacity(0.5)),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image
+            Expanded(
+              flex: 5,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  item.imageUrl.isNotEmpty
+                      ? Image.network(
+                          item.imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            color: AppTheme.surfaceBrown,
+                            child: const Icon(Icons.restaurant, color: AppTheme.textMuted, size: 40),
+                          ),
+                        )
+                      : Container(
                           color: AppTheme.surfaceBrown,
                           child: const Icon(Icons.restaurant, color: AppTheme.textMuted, size: 40),
                         ),
-                      )
-                    : Container(
-                        color: AppTheme.surfaceBrown,
-                        child: const Icon(Icons.restaurant, color: AppTheme.textMuted, size: 40),
-                      ),
-                if (item.isPopular)
-                  Positioned(
-                    top: 8,
-                    left: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryOrange,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        'Phổ biến',
-                        style: GoogleFonts.inter(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
+                  if (item.isPopular)
+                    Positioned(
+                      top: 8,
+                      left: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryOrange,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          'Phổ biến',
+                          style: GoogleFonts.inter(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-              ],
-            ),
-          ),
-          // Info
-          Expanded(
-            flex: 4,
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.name,
-                    style: GoogleFonts.inter(
-                      color: AppTheme.textLight,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
+                  if (!item.isAvailable)
+                    Container(
+                      color: Colors.black45,
+                      child: Center(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: AppTheme.dangerRed,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            'HẾT MÓN',
+                            style: GoogleFonts.inter(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    item.categoryName,
-                    style: GoogleFonts.inter(color: AppTheme.textMuted, fontSize: 11),
-                  ),
-                  const Spacer(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Flexible(
-                        child: Text(
+                ],
+              ),
+            ),
+            // Details
+            Expanded(
+              flex: 4,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.inter(
+                        color: AppTheme.textLight,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Expanded(
+                      child: Text(
+                        item.description,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.inter(
+                          color: AppTheme.textMuted,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
                           AppTheme.formatPrice(item.price),
                           style: GoogleFonts.inter(
                             color: AppTheme.primaryOrange,
                             fontWeight: FontWeight.w700,
-                            fontSize: 14,
+                            fontSize: 16,
                           ),
                         ),
-                      ),
-                      InkWell(
-                        onTap: () => _addToCart(item),
-                        borderRadius: BorderRadius.circular(10),
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: AppTheme.primaryOrange,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Icon(Icons.add, color: Colors.white, size: 18),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                        _buildAddButton(item),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddButton(MenuItem item) {
+    if (!item.isAvailable) {
+      return Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: AppTheme.surfaceBrown,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: const Icon(Icons.block, color: AppTheme.textMuted, size: 18),
+      );
+    }
+    return InkWell(
+      onTap: () => _addToCart(item),
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: AppTheme.primaryOrange.withOpacity(0.15),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: const Icon(Icons.add, color: AppTheme.primaryOrange, size: 18),
       ),
     );
   }
