@@ -26,3 +26,6 @@ server/qr_codes/
 Thumbs.db
 
 .vercel
+
+node_modules
+test_browser.js
