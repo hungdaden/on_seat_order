@@ -1,10 +1,9 @@
 {
   "outputDirectory": "build/web",
-  "cleanUrls": true,
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/"
+      "destination": "/index.html"
     }
   ]
 }

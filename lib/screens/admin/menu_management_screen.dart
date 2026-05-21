@@ -96,6 +96,9 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
                   'is_popular': popular,
                   'is_available': available,
                 };
+                if (item == null) {
+                  data['sort_order'] = 999;
+                }
                 try {
                   if (item == null) {
                     await ApiService.createMenuItem(data);
