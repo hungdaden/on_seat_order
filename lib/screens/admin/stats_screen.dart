@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../config/theme.dart';
-import '../../config/api_client.dart';
 import '../../services/api_service.dart';
 
 class StatsScreen extends StatefulWidget {

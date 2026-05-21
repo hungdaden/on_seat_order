@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../config/theme.dart';
-import '../../config/api_client.dart';
 import '../../services/api_service.dart';
 
 class AdminShell extends StatelessWidget {
@@ -16,7 +15,7 @@ class AdminShell extends StatelessWidget {
     final currentPath = GoRouterState.of(context).uri.path;
     final today = DateFormat('d/M/yyyy').format(DateTime.now());
 
-    final isLoggedIn = ApiClient.token != null;
+    final isLoggedIn = ApiService.isLoggedIn;
 
     if (!isLoggedIn) {
       return Scaffold(

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import '../../config/theme.dart';
-import '../../config/api_client.dart';
 import '../../services/api_service.dart';
 
 class AdminLoginScreen extends StatefulWidget {
@@ -26,11 +25,9 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
   }
 
   Future<void> _checkExistingToken() async {
-    if (ApiClient.token != null) {
-      final valid = await ApiService.verifyToken();
-      if (valid && mounted) {
-        context.go('/admin/orders');
-      }
+    final valid = await ApiService.verifyToken();
+    if (valid && mounted) {
+      context.go('/admin/orders');
     }
   }
 

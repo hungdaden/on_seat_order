@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 import 'config/theme.dart';
 import 'screens/home_screen.dart';
@@ -9,11 +11,14 @@ import 'screens/admin/admin_shell.dart';
 import 'screens/admin/orders_screen.dart';
 import 'screens/admin/menu_management_screen.dart';
 import 'screens/admin/stats_screen.dart';
+import 'screens/admin/seed_data_screen.dart';
 import 'screens/display_screen.dart';
 
 import 'package:flutter_web_plugins/url_strategy.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   usePathUrlStrategy();
   runApp(const PhoSaigonApp());
 }
@@ -80,6 +85,12 @@ final _router = GoRouter(
     GoRoute(
       path: '/display',
       builder: (context, state) => const DisplayScreen(),
+    ),
+
+    // Seed data (temporary - remove after seeding)
+    GoRoute(
+      path: '/seed',
+      builder: (context, state) => const SeedDataScreen(),
     ),
   ],
 );
